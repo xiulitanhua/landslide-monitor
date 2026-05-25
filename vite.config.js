@@ -8,7 +8,9 @@ export default defineConfig({
   base: '/landslide-monitor/',
   plugins: [
     vue(),
-    cesium() // 启用插件，它会自动把 Cesium 的静态文件复制到 public 目录
+    cesium({
+      cesiumBaseUrl: 'cesium/'
+    })
   ],
   resolve: {
     alias: {

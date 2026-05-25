@@ -34,6 +34,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Fix Cesium path (remove double base nesting)
+        run: mv dist/landslide-monitor/cesium dist/cesium
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
