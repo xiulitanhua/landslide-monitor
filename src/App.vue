@@ -372,7 +372,7 @@ onMounted(async () => {
     
     // 🔥 加载裂缝点云图层（与原数据重叠）
     try {
-      const crack = await Cesium.Cesium3DTileset.fromUrl(`${BASE}liefeng3/tileset.json`, {
+      const crack = await Cesium.Cesium3DTileset.fromUrl(`${BASE}/liefeng3/tileset.json`, {
         maximumScreenSpaceError: 1,  // 提高清晰度
       });
       viewerRef.value.scene.primitives.add(crack);
