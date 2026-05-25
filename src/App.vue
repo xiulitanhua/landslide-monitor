@@ -336,7 +336,7 @@ onMounted(async () => {
       const BASE = isProd 
         ? 'https://3dtileslandslide-1334746675.cos.ap-chengdu.myqcloud.com'
         : import.meta.env.BASE_URL;
-      const tileset = await Cesium.Cesium3DTileset.fromUrl(`${BASE}2026%202%207%2017%2012/tileset.json`, {
+      const tileset = await Cesium.Cesium3DTileset.fromUrl(`${BASE}/2026%202%207%2017%2012/tileset.json`, {
           maximumScreenSpaceError: 16,
       });
       viewerRef.value.scene.primitives.add(tileset);
