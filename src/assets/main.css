@@ -1,0 +1,2 @@
+/* 保证地球占满全屏 */
+body, html, #app { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
