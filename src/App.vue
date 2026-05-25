@@ -2,8 +2,14 @@
   <div class="main-container">
     <div id="cesiumContainer"></div>
 
-    <div class="control-panel glass-panel" ref="controlPanelRef">
-      <h3 class="drag-handle">⛰️ 滑坡监测数字孪生</h3>
+    <!-- 最小化标签 -->
+    <div v-if="controlCollapsed" class="control-tab" @click="controlCollapsed = false">⛰️</div>
+
+    <div class="control-panel glass-panel" ref="controlPanelRef" v-show="!controlCollapsed">
+      <h3 class="drag-handle">
+        <span>⛰️ 滑坡监测数字孪生</span>
+        <button @click="controlCollapsed = true" class="min-btn" title="最小化">—</button>
+      </h3>
       <div class="divider"></div>
       
       <!-- 分析工具 -->
@@ -179,6 +185,7 @@ import StatusBar from './components/StatusBar.vue';
 import ZonePanel from './components/ZonePanel.vue';
 // 🔥 控制面板拖动
 const controlPanelRef = ref(null);
+const controlCollapsed = ref(false);
 let controlPanelDraggable = null;
 
 const statusText = ref("初始化中...");
@@ -790,6 +797,27 @@ onUnmounted(() => {
   border-radius: 999px;
   background: linear-gradient(180deg, #38bdf8, #a855f7);
 }
+
+.min-btn {
+  margin-left: auto;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: #94a3b8; width: 24px; height: 24px; border-radius: 4px;
+  cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.min-btn:hover { background: rgba(56,189,248,0.25); color: #38bdf8; }
+
+.control-tab {
+  position: absolute; left: 0; top: 160px; z-index: 100;
+  width: 36px; height: 80px; background: rgba(15,23,42,0.9);
+  backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15);
+  border-left: none; border-radius: 0 8px 8px 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; color: #38bdf8;
+  box-shadow: 4px 0 16px rgba(0,0,0,0.3); writing-mode: vertical-rl;
+}
+.control-tab:hover { background: rgba(56,189,248,0.2); width: 40px; }
+.control-panel { transition: opacity 0.2s, transform 0.2s; }
 
 .drag-handle:active {
   cursor: grabbing;
