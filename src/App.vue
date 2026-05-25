@@ -331,8 +331,9 @@ onMounted(async () => {
 
     try {
       statusText.value = "加载点云模型...";
-      // 📌 确保你的点云数据在 public/2026 2 7 17 12/tileset.json
-      const tileset = await Cesium.Cesium3DTileset.fromUrl(`${import.meta.env.BASE_URL}2026%202%207%2017%2012/tileset.json`, {
+      // 📌 3D 点云托管在腾讯云 COS
+      const COS_BASE = 'https://3dtileslandslide-1334746675.cos.ap-chengdu.myqcloud.com';
+      const tileset = await Cesium.Cesium3DTileset.fromUrl(`${COS_BASE}/2026%202%207%2017%2012/tileset.json`, {
           maximumScreenSpaceError: 16,
       });
       viewerRef.value.scene.primitives.add(tileset);
@@ -368,7 +369,7 @@ onMounted(async () => {
     
     // 🔥 加载裂缝点云图层（与原数据重叠）
     try {
-      const crack = await Cesium.Cesium3DTileset.fromUrl(`${import.meta.env.BASE_URL}liefeng3/tileset.json`, {
+      const crack = await Cesium.Cesium3DTileset.fromUrl(`${COS_BASE}/liefeng3/tileset.json`, {
         maximumScreenSpaceError: 1,  // 提高清晰度
       });
       viewerRef.value.scene.primitives.add(crack);
