@@ -1,6 +1,14 @@
 <template>
-  <div class="toolbox-panel" ref="panelRef">
-    <h3 class="drag-handle">🛠️ 工具箱</h3>
+  <!-- 🔥 最小化后的边缘标签 -->
+  <div v-if="collapsed" class="toolbox-tab" @click="collapsed = false" title="展开工具箱">
+    🛠️
+  </div>
+
+  <div class="toolbox-panel" :class="{ collapsed }" ref="panelRef" v-show="!collapsed">
+    <h3 class="drag-handle">
+      <span>🛠️ 工具箱</span>
+      <button class="minimize-btn" @click="collapsed = true" title="最小化">—</button>
+    </h3>
     
     <div class="tool-group">
       <label>📐 模型高度微调 ({{ heightVal }}米)</label>
@@ -99,6 +107,7 @@ const props = defineProps(['tileset', 'viewer', 'edlEnabled']);
 const emit = defineEmits(['flyHome', 'toggleTerrain', 'toggleEDL', 'debugInfo']);
 
 const panelRef = ref(null);
+const collapsed = ref(false);
 const { initDraggable, destroyDraggable } = useDraggable(panelRef, '.drag-handle');
 
 onMounted(() => initDraggable());
@@ -301,5 +310,61 @@ input[type=range]::-webkit-slider-thumb:hover {
 .pos-btns button {
   padding: 4px 8px;
   font-size: 11px;
+}
+
+/* 🔥 最小化按钮 */
+.minimize-btn {
+  margin-left: auto;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #94a3b8;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.minimize-btn:hover {
+  background: rgba(56,189,248,0.25);
+  color: #38bdf8;
+}
+
+/* 🔥 最小化后的边缘标签 */
+.toolbox-tab {
+  position: absolute;
+  top: 160px;
+  right: 0;
+  width: 36px;
+  height: 80px;
+  background: rgba(15,23,42,0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 100;
+  writing-mode: vertical-rl;
+  color: #38bdf8;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.3);
+  transition: all 0.2s;
+}
+.toolbox-tab:hover {
+  background: rgba(56,189,248,0.2);
+  width: 40px;
+}
+
+/* 🔥 面板收起动画 */
+.toolbox-panel {
+  transition: opacity 0.2s, transform 0.2s;
 }
 </style>
