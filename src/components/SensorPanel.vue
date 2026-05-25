@@ -1,11 +1,14 @@
 <template>
-  <div class="sensor-panel glass-panel" ref="panelRef">
+  <!-- 最小化标签 -->
+  <div v-if="collapsed" class="sensor-tab" @click="collapsed = false">📊</div>
+  <div class="sensor-panel glass-panel" ref="panelRef" v-show="!collapsed">
     <div class="panel-header drag-handle">
       <span>📊 IoT 实时监测</span>
       <div class="header-actions">
         <button @click="toggleMonitoring" :class="{active: isMonitoring}">
           {{ isMonitoring ? '⏸️ 暂停' : '▶️ 启动' }}
         </button>
+        <button @click="collapsed = true" class="min-btn" title="最小化">—</button>
         <button @click="$emit('close')" class="close-btn">×</button>
       </div>
     </div>
@@ -128,6 +131,7 @@ const emit = defineEmits(['close', 'selectSensor', 'toggleMonitoring', 'flyTo', 
 
 const chartRef = ref(null);
 const panelRef = ref(null);
+const collapsed = ref(false);
 let myChart = null;
 
 // 🔥 拖动功能
@@ -611,4 +615,24 @@ onUnmounted(() => {
   color: #888;
   margin-top: 8px;
 }
+
+/* 最小化 */
+.min-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: #94a3b8; width: 24px; height: 24px; border-radius: 4px;
+  cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.min-btn:hover { background: rgba(56,189,248,0.25); color: #38bdf8; }
+.sensor-tab {
+  position: absolute; right: 0; z-index: 100; top: 500px;
+  width: 36px; height: 72px; background: rgba(15,23,42,0.9);
+  backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15);
+  border-right: none; border-radius: 8px 0 0 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; color: #38bdf8;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.3); writing-mode: vertical-rl;
+}
+.sensor-tab:hover { background: rgba(56,189,248,0.2); width: 40px; }
+.sensor-panel { transition: opacity 0.2s, transform 0.2s; }
 </style>

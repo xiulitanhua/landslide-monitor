@@ -1,8 +1,11 @@
 <template>
-  <div class="zone-panel glass-panel" v-if="zones && zones.length">
-    <div class="panel-header">
-      <span>🗺️ 区域预警</span>
-    </div>
+  <template v-if="zones && zones.length">
+    <div v-if="collapsed" class="zone-tab" @click="collapsed = false">🗺️</div>
+    <div class="zone-panel glass-panel" v-show="!collapsed">
+      <div class="panel-header">
+        <span>🗺️ 区域预警</span>
+        <button @click="collapsed = true" class="min-btn" title="最小化">—</button>
+      </div>
 
     <div class="panel-body">
       <div 
@@ -34,9 +37,12 @@
       </div>
     </div>
   </div>
+  </template>
 </template>
 
 <script setup>
+import { ref } from 'vue';
+const collapsed = ref(false);
 defineProps({
   zones: {
     type: Array,
@@ -164,6 +170,24 @@ defineEmits(['flyTo']);
   font-size: 12px;
   padding: 8px 0;
 }
+
+.min-btn {
+  margin-left: auto; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15); color: #94a3b8;
+  width: 24px; height: 24px; border-radius: 4px;
+  cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.min-btn:hover { background: rgba(56,189,248,0.25); color: #38bdf8; }
+.zone-tab {
+  position: absolute; right: 0; z-index: 100; bottom: 300px;
+  width: 36px; height: 72px; background: rgba(15,23,42,0.9);
+  backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15);
+  border-right: none; border-radius: 8px 0 0 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; color: #38bdf8;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.3); writing-mode: vertical-rl;
+}
+.zone-tab:hover { background: rgba(56,189,248,0.2); width: 40px; }
+.zone-panel { transition: opacity 0.2s, transform 0.2s; }
 </style>
-
-

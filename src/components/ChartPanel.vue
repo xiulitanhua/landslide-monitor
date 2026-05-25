@@ -1,10 +1,12 @@
 <template>
-  <div class="chart-container glass-panel" ref="panelRef">
+  <div v-if="collapsed" class="chart-tab" @click="collapsed = false">📉</div>
+  <div class="chart-container glass-panel" ref="panelRef" v-show="!collapsed">
     <div class="header drag-handle">
       <span>📉 地形剖面图</span>
       <div class="header-info">
         <span v-if="profileInfo">{{ profileInfo }}</span>
       </div>
+      <button @click="collapsed = true" class="min-btn" title="最小化">—</button>
       <button @click="$emit('close')" class="close-btn">×</button>
     </div>
     <div ref="chartRef" class="chart-box"></div>
@@ -21,6 +23,7 @@ const emit = defineEmits(['close', 'highlight']);
 
 const chartRef = ref(null);
 const panelRef = ref(null);
+const collapsed = ref(false);
 let myChart = null;
 
 // 🔥 拖动功能
@@ -212,4 +215,23 @@ onUnmounted(() => {
 .close-btn:hover {
   color: #ff3333;
 }
+
+.min-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: #94a3b8; width: 24px; height: 24px; border-radius: 4px;
+  cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center; margin-right: 4px;
+}
+.min-btn:hover { background: rgba(56,189,248,0.25); color: #38bdf8; }
+.chart-tab {
+  position: absolute; right: 0; z-index: 100; bottom: 100px;
+  width: 36px; height: 72px; background: rgba(15,23,42,0.9);
+  backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15);
+  border-right: none; border-radius: 8px 0 0 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; color: #38bdf8;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.3); writing-mode: vertical-rl;
+}
+.chart-tab:hover { background: rgba(56,189,248,0.2); width: 40px; }
+.chart-container { transition: opacity 0.2s, transform 0.2s; }
 </style>

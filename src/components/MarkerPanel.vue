@@ -1,7 +1,9 @@
 <template>
-  <div class="marker-panel glass-panel" ref="panelRef">
+  <div v-if="collapsed" class="marker-tab" @click="collapsed = false">📍</div>
+  <div class="marker-panel glass-panel" ref="panelRef" v-show="!collapsed">
     <div class="panel-header drag-handle">
       <span>📍 标注管理</span>
+      <button @click="collapsed = true" class="min-btn" title="最小化">—</button>
       <button @click="$emit('close')" class="close-btn">×</button>
     </div>
     
@@ -65,6 +67,7 @@ defineProps({
 defineEmits(['close', 'addMarker', 'addDangerZone', 'removeMarker', 'flyTo', 'clearAll', 'exportMarkers']);
 
 const panelRef = ref(null);
+const collapsed = ref(false);
 const { initDraggable, destroyDraggable } = useDraggable(panelRef, '.drag-handle');
 
 onMounted(() => initDraggable());
@@ -255,4 +258,23 @@ const getIcon = (type) => {
 .clear-all-btn:hover {
   background: #d64;
 }
+
+.min-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: #94a3b8; width: 24px; height: 24px; border-radius: 4px;
+  cursor: pointer; font-size: 14px; line-height: 1; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center; margin-right: 4px;
+}
+.min-btn:hover { background: rgba(56,189,248,0.25); color: #38bdf8; }
+.marker-tab {
+  position: absolute; right: 0; z-index: 100; top: 420px;
+  width: 36px; height: 72px; background: rgba(15,23,42,0.9);
+  backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15);
+  border-right: none; border-radius: 8px 0 0 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer; color: #38bdf8;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.3); writing-mode: vertical-rl;
+}
+.marker-tab:hover { background: rgba(56,189,248,0.2); width: 40px; }
+.marker-panel { transition: opacity 0.2s, transform 0.2s; }
 </style>
