@@ -484,8 +484,6 @@ export function useMeasureTools(viewerInstance) {
         return { surfaceDistance, heightDiff, straightDistance };
     };
     
-    const { computeAreaAndCenter } = useGeometry();
-    
     return {
         isMeasuring,
         measureMode,
