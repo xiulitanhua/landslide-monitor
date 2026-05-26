@@ -4,6 +4,7 @@
 
 import * as Cesium from 'cesium';
 import { ref } from 'vue';
+import { computeAreaAndCenter } from '@/utils/geometry.js';
 
 export function useMeasureTools(viewerInstance) {
     const isMeasuring = ref(false);
@@ -233,8 +234,8 @@ export function useMeasureTools(viewerInstance) {
             
             if (points.length >= 3) {
                 // 计算面积
-                const area = calculatePolygonArea(points);
-                
+                const { area, center } = computeAreaAndCenter(points);
+
                 // 添加最终多边形
                 const polygonEntity = viewer.entities.add({
                     polygon: {
@@ -248,7 +249,6 @@ export function useMeasureTools(viewerInstance) {
                 measureEntities.push(polygonEntity);
                 
                 // 在中心添加面积标签
-                const center = calculatePolygonCenter(points);
                 const labelEntity = viewer.entities.add({
                     position: center,
                     label: {
@@ -484,46 +484,7 @@ export function useMeasureTools(viewerInstance) {
         return { surfaceDistance, heightDiff, straightDistance };
     };
     
-    /**
-     * 计算多边形面积（球面面积）
-     */
-    const calculatePolygonArea = (positions) => {
-        // 转换为经纬度
-        const cartographics = positions.map(p => Cesium.Cartographic.fromCartesian(p));
-        
-        // 使用球面多边形面积公式
-        const n = cartographics.length;
-        let area = 0;
-        
-        for (let i = 0; i < n; i++) {
-            const j = (i + 1) % n;
-            const lat1 = cartographics[i].latitude;
-            const lon1 = cartographics[i].longitude;
-            const lat2 = cartographics[j].latitude;
-            const lon2 = cartographics[j].longitude;
-            
-            area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
-        }
-        
-        const R = 6378137; // 地球半径（米）
-        area = Math.abs(area * R * R / 2);
-        
-        return area;
-    };
-    
-    /**
-     * 计算多边形中心点
-     */
-    const calculatePolygonCenter = (positions) => {
-        let x = 0, y = 0, z = 0;
-        positions.forEach(p => {
-            x += p.x;
-            y += p.y;
-            z += p.z;
-        });
-        const n = positions.length;
-        return new Cesium.Cartesian3(x / n, y / n, z / n);
-    };
+    const { computeAreaAndCenter } = useGeometry();
     
     return {
         isMeasuring,

@@ -4,6 +4,7 @@
 
 import * as Cesium from 'cesium';
 import { ref, reactive } from 'vue';
+import { computeAreaAndCenter } from '@/utils/geometry.js';
 
 export function useMarkerTools(viewerInstance) {
     const isMarking = ref(false);
@@ -46,41 +47,6 @@ export function useMarkerTools(viewerInstance) {
         '1': { label: '高', color: Cesium.Color.RED },
         '2': { label: '中', color: Cesium.Color.ORANGE },
         '3': { label: '低', color: Cesium.Color.fromCssColorString('#22c55e') } // 安全用绿色
-    };
-
-    // 计算多边形面积（在局部 ENU 平面上使用鞋带公式），返回平面面积和几何中心
-    const computeAreaAndCenter = (positions) => {
-        if (positions.length < 3) return { area: 0, center: positions[0] };
-
-        // 以首点为局部坐标原点，建立 ENU 变换
-        const origin = positions[0];
-        const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
-        const enuInverse = Cesium.Matrix4.inverse(enuMatrix, new Cesium.Matrix4());
-
-        const localPts = positions.map((p) => {
-            const lp = Cesium.Matrix4.multiplyByPoint(enuInverse, p, new Cesium.Cartesian3());
-            return { x: lp.x, y: lp.y };
-        });
-
-        let area = 0;
-        let cx = 0;
-        let cy = 0;
-        const n = localPts.length;
-        for (let i = 0; i < n; i++) {
-            const { x: x1, y: y1 } = localPts[i];
-            const { x: x2, y: y2 } = localPts[(i + 1) % n];
-            const cross = x1 * y2 - x2 * y1;
-            area += cross;
-            cx += (x1 + x2) * cross;
-            cy += (y1 + y2) * cross;
-        }
-
-        area = Math.abs(area) / 2;
-        const factor = area !== 0 ? 1 / (6 * area) : 0;
-        const centroidLocal = new Cesium.Cartesian3(cx * factor, cy * factor, 0);
-        const centroidWorld = Cesium.Matrix4.multiplyByPoint(enuMatrix, centroidLocal, new Cesium.Cartesian3());
-
-        return { area, center: centroidWorld };
     };
 
     // 清理临时实体，避免泄漏
@@ -431,14 +397,6 @@ export function useMarkerTools(viewerInstance) {
         a.download = `markers_${new Date().toISOString().slice(0, 10)}.json`;
         a.click();
         URL.revokeObjectURL(url);
-    };
-    
-    // ===== 辅助函数 =====
-    const calculateCenter = (positions) => {
-        let x = 0, y = 0, z = 0;
-        positions.forEach(p => { x += p.x; y += p.y; z += p.z; });
-        const n = positions.length;
-        return new Cesium.Cartesian3(x / n, y / n, z / n);
     };
     
     return {
