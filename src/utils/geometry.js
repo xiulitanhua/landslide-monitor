@@ -1,7 +1,37 @@
 /**
- * 几何计算工具 —— 多边形面积、中心点等
+ * 几何计算工具 —— 多边形面积、中心点、精准坐标拾取等
  */
 import * as Cesium from 'cesium';
+
+/**
+ * 精准坐标拾取（多级回退）
+ * 1) pickPosition —— 拾取点云/模型表面深度
+ * 2) pickFromRayMostDetailed —— 射线最详细拾取
+ * 3) globe.pick —— 回退到地形表面
+ *
+ * @param {Cesium.Viewer} viewer
+ * @param {Cesium.Cartesian2} screenPosition
+ * @returns {Cesium.Cartesian3 | undefined}
+ */
+export function pickPosition(viewer, screenPosition) {
+  const scene = viewer.scene;
+  let cartesian = scene.pickPosition(screenPosition);
+
+  if (!Cesium.defined(cartesian)) {
+    const ray = viewer.camera.getPickRay(screenPosition);
+    if (ray) {
+      const picked = scene.pickFromRayMostDetailed(ray);
+      if (picked && picked.position) {
+        cartesian = picked.position;
+      }
+      if (!Cesium.defined(cartesian)) {
+        cartesian = scene.globe.pick(ray, scene);
+      }
+    }
+  }
+
+  return cartesian;
+}
 
 /**
  * 在局部 ENU 平面上使用鞋带公式计算多边形面积和几何中心

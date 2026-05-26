@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { ref } from 'vue';
+import { pickPosition } from '@/utils/geometry.js';
 
 export function useAnalysisTools(viewerInstance) {
     const isMeasuring = ref(false);
@@ -38,7 +39,7 @@ export function useAnalysisTools(viewerInstance) {
         if (statusCallback) statusCallback("🎯 请点击模型上的【起点】");
 
         handler.setInputAction(async (click) => {
-            let cartesian = viewer.scene.pickPosition(click.position);
+            let cartesian = pickPosition(viewer, click.position);
             if (Cesium.defined(cartesian)) {
                 points.push(cartesian);
                 

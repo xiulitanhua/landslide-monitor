@@ -4,7 +4,7 @@
 
 import * as Cesium from 'cesium';
 import { ref } from 'vue';
-import { computeAreaAndCenter } from '@/utils/geometry.js';
+import { computeAreaAndCenter, pickPosition as doPick } from '@/utils/geometry.js';
 
 export function useMeasureTools(viewerInstance) {
     const isMeasuring = ref(false);
@@ -36,7 +36,7 @@ export function useMeasureTools(viewerInstance) {
         
         // 左键点击添加点
         handler.setInputAction((click) => {
-            const cartesian = viewer.scene.pickPosition(click.position);
+            const cartesian = doPick(viewer, click.position);
             if (!Cesium.defined(cartesian)) return;
             
             points.push(cartesian);
@@ -103,7 +103,7 @@ export function useMeasureTools(viewerInstance) {
         handler.setInputAction((movement) => {
             if (points.length === 0) return;
             
-            const cartesian = viewer.scene.pickPosition(movement.endPosition);
+            const cartesian = doPick(viewer, movement.endPosition);
             if (!Cesium.defined(cartesian)) return;
             
             // 更新临时线
@@ -176,7 +176,7 @@ export function useMeasureTools(viewerInstance) {
         
         // 左键点击添加点
         handler.setInputAction((click) => {
-            const cartesian = viewer.scene.pickPosition(click.position);
+            const cartesian = doPick(viewer, click.position);
             if (!Cesium.defined(cartesian)) return;
             
             points.push(cartesian);
@@ -208,7 +208,7 @@ export function useMeasureTools(viewerInstance) {
         handler.setInputAction((movement) => {
             if (points.length < 2) return;
             
-            const cartesian = viewer.scene.pickPosition(movement.endPosition);
+            const cartesian = doPick(viewer, movement.endPosition);
             if (!Cesium.defined(cartesian)) return;
             
             // 更新临时多边形
@@ -295,7 +295,7 @@ export function useMeasureTools(viewerInstance) {
         handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
         
         handler.setInputAction((click) => {
-            const cartesian = viewer.scene.pickPosition(click.position);
+            const cartesian = doPick(viewer, click.position);
             if (!Cesium.defined(cartesian)) return;
             
             points.push(cartesian);
@@ -335,18 +335,13 @@ export function useMeasureTools(viewerInstance) {
             
             if (points.length === 2) {
                 // 计算高差
-                const cart1 = Cesium.Cartographic.fromCartesian(points[0]);
-                const cart2 = Cesium.Cartographic.fromCartesian(points[1]);
                 const { surfaceDistance: horizontalDist, heightDiff, straightDistance } = computeGeodesicAnd3D(points[0], points[1]);
                 const slope = Math.atan(Math.abs(heightDiff) / horizontalDist) * 180 / Math.PI;
                 
-                // 画垂直线和水平线
+                // 画剖面线
                 const p1 = points[0];
                 const p2 = points[1];
-                const minH = Math.min(cart1.height, cart2.height);
-                const p1Low = Cesium.Cartesian3.fromRadians(cart1.longitude, cart1.latitude, minH);
-                const p2Low = Cesium.Cartesian3.fromRadians(cart2.longitude, cart2.latitude, minH);
-                
+
                 // 连接线
                 const lineEntity = viewer.entities.add({
                     polyline: {

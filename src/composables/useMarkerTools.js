@@ -4,7 +4,7 @@
 
 import * as Cesium from 'cesium';
 import { ref, reactive } from 'vue';
-import { computeAreaAndCenter } from '@/utils/geometry.js';
+import { computeAreaAndCenter, pickPosition as doPick } from '@/utils/geometry.js';
 
 export function useMarkerTools(viewerInstance) {
     const isMarking = ref(false);
@@ -78,7 +78,7 @@ export function useMarkerTools(viewerInstance) {
         handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
         
         handler.setInputAction((click) => {
-            const cartesian = viewer.scene.pickPosition(click.position);
+            const cartesian = doPick(viewer, click.position);
             if (!Cesium.defined(cartesian)) return;
             
             const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
@@ -173,7 +173,7 @@ export function useMarkerTools(viewerInstance) {
         
         // 左键添加点
         handler.setInputAction((click) => {
-            const cartesian = viewer.scene.pickPosition(click.position);
+            const cartesian = doPick(viewer, click.position);
             if (!Cesium.defined(cartesian)) return;
             
             points.push(cartesian);
@@ -199,7 +199,7 @@ export function useMarkerTools(viewerInstance) {
         handler.setInputAction((movement) => {
             if (points.length < 2) return;
             
-            const cartesian = viewer.scene.pickPosition(movement.endPosition);
+            const cartesian = doPick(viewer, movement.endPosition);
             if (!Cesium.defined(cartesian)) return;
             
             if (tempPolygon) viewer.entities.remove(tempPolygon);

@@ -5,6 +5,7 @@
 
 import * as Cesium from 'cesium';
 import { ref, reactive, onUnmounted } from 'vue';
+import { pickPosition } from '@/utils/geometry.js';
 
 export function useSensorMonitor(viewerInstance) {
     const sensors = reactive([]);
@@ -469,33 +470,6 @@ export function useSensorMonitor(viewerInstance) {
      */
     let addClickHandler = null;
 
-    // 获取点击位置：优先点云/模型，再回退射线拾取与地形
-    const getClickCartesian = (click) => {
-        const scene = viewerInstance.scene;
-
-        // 1) 支持点云/模型的深度拾取
-        let cartesian = scene.pickPosition(click.position);
-
-        // 2) 回退：基于射线的最详细拾取（适配瓦片/模型）
-        if (!Cesium.defined(cartesian)) {
-            const ray = viewerInstance.camera.getPickRay(click.position);
-            if (ray) {
-                const picked = scene.pickFromRayMostDetailed(ray);
-                if (picked && picked.position) {
-                    cartesian = picked.position;
-                }
-                // 3) 再回退到地形拾取
-                if (!Cesium.defined(cartesian)) {
-                    cartesian = scene.globe.pick(ray, scene);
-                }
-            }
-        }
-
-        return cartesian;
-    };
-    /**
-     * 恢复传感器选择点击事件（addSensorByClick 完成后调用）
-     */
     const restoreClickHandler = () => {
         if (!clickHandler || !viewerInstance) return;
         clickHandler.setInputAction((click) => {
@@ -539,7 +513,7 @@ export function useSensorMonitor(viewerInstance) {
         
         // 左键点击添加
         addClickHandler.setInputAction((click) => {
-            const cartesian = getClickCartesian(click);
+            const cartesian = pickPosition(viewerInstance, click.position);
             
             if (!Cesium.defined(cartesian)) {
                 callback && callback('⚠️ 请点击有效的点云/模型或地形位置');
