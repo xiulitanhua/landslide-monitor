@@ -6,8 +6,7 @@ import * as Cesium from 'cesium';
 /**
  * 精准坐标拾取（多级回退）
  * 1) pickPosition —— 拾取点云/模型表面深度
- * 2) pickFromRayMostDetailed —— 射线最详细拾取
- * 3) globe.pick —— 回退到地形表面
+ * 2) globe.pick —— 回退到地形表面（❌ 跳过 pickFromRayMostDetailed，它会误拾取 billboard 实体）
  *
  * @param {Cesium.Viewer} viewer
  * @param {Cesium.Cartesian2} screenPosition
@@ -20,13 +19,8 @@ export function pickPosition(viewer, screenPosition) {
   if (!Cesium.defined(cartesian)) {
     const ray = viewer.camera.getPickRay(screenPosition);
     if (ray) {
-      const picked = scene.pickFromRayMostDetailed(ray);
-      if (picked && picked.position) {
-        cartesian = picked.position;
-      }
-      if (!Cesium.defined(cartesian)) {
-        cartesian = scene.globe.pick(ray, scene);
-      }
+      // 直接回退到地形拾取，避免 pickFromRayMostDetailed 误拾取已有的 billboard/label 实体
+      cartesian = scene.globe.pick(ray, scene);
     }
   }
 
